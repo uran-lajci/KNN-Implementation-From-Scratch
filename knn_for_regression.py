@@ -2,7 +2,6 @@ import math
 import operator
 import warnings
 
-import numpy as np
 import pandas as pd
 from sklearn.datasets import load_boston
 from sklearn.model_selection import train_test_split
@@ -16,21 +15,6 @@ def euclidean_distance(instance1, instance2, length):
     for x in range(length):
         distance += pow((instance1[x] - instance2[x]), 2)
     return math.sqrt(distance)
-
-
-def manhattan_distance(instance1, instance2, length):
-    distance = 0
-    for x in range(length):
-        distance += abs(instance1[x] - instance2[x])
-    return distance
-
-
-def chebyshev_distance(instance1, instance2, length):
-    distance = 0
-    for x in range(length):
-        distance = max(distance, abs(instance1[x] - instance2[x]))
-    return distance
-
 
 def get_neighbors(training_set, test_instance, k, distance_function):
     distances = []
@@ -60,24 +44,43 @@ train_data, test_data, train_target, test_target = train_test_split(data[boston.
 train_data['MEDV'] = train_target
 test_data['MEDV'] = test_target
 
-# Test with different k values and distance functions
-distance_functions = [euclidean_distance, manhattan_distance, chebyshev_distance]
+# Test with different k values
 k_values = [3, 5, 7]
 
-for distance_function in distance_functions:
-    for k in k_values:
-        predictions = []
-        for i in range(len(test_data)):
-            neighbors = get_neighbors(train_data.values, test_data.values[i], k, distance_function)
-            prediction = predict_regression(neighbors)
-            predictions.append(prediction)
+for k in k_values:
+    predictions = []
+    for i in range(len(test_data)):
+        neighbors = get_neighbors(train_data.values, test_data.values[i], k, euclidean_distance)
+        prediction = predict_regression(neighbors)
+        predictions.append(prediction)
 
-        # Compute the performance measures
-        rmse = math.sqrt(mean_squared_error(test_target, predictions))
-        mae = mean_absolute_error(test_target, predictions)
-        r2 = r2_score(test_target, predictions)
+    # Compute the performance measures
+    rmse = math.sqrt(mean_squared_error(test_target, predictions))
+    mae = mean_absolute_error(test_target, predictions)
+    r2 = r2_score(test_target, predictions)
 
-        print(f"Distance: {distance_function.__name__}, k: {k}")
-        print(f"RMSE: {rmse}")
-        print(f"MAE: {mae}")
-        print(f"R2 Score: {r2}\n")
+    print(f"Distance: {euclidean_distance.__name__}, k: {k}")
+    print(f"RMSE: {rmse}")
+    print(f"MAE: {mae}")
+    print(f"R2 Score: {r2}\n")
+
+######################################################################
+
+    # import pandas as pd
+    # from sklearn.neighbors import KNeighborsRegressor
+
+    # # Separate the features (X) and target (y)
+    # X = df[['feature1', 'feature2']]
+    # y = df['target']
+
+    # # Initialize and fit the KNeighborsRegressor with k=3
+    # knn = KNeighborsRegressor(n_neighbors=3)
+    # knn.fit(X, y)
+
+    # # Extract the last row from the dataset for prediction
+    # new_data = df.iloc[[-1], :-1]
+
+    # # Make the prediction for the last row
+    # prediction = knn.predict(new_data)
+
+    # print("Prediction with Library: ", prediction[0])
